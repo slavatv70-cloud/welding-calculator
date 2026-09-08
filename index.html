@@ -3,81 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Калькулятор Сварки</title>
+    <title>Инженерный калькулятор сварки ГОСТ</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; padding: 20px; }
-        .card { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h2 { color: #1e3a8a; margin-top: 0; display: flex; align-items: center; gap: 10px; }
-        label { display: block; margin: 14px 0 6px; font-weight: 600; color: #4b5563; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #cdccdf; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
-        .results { background: #eff6ff; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #3b82f6; }
-        .res-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 16px; }
-        .bold { font-weight: bold; color: #1e3a8a; }
+        .card { max-width: 650px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #1e3a8a; }
+        h2 { color: #1e3a8a; margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 22px; }
+        label { display: block; margin: 14px 0 6px; font-weight: 600; color: #4b5563; font-size: 14px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #cdccdf; border-radius: 6px; box-sizing: border-box; font-size: 16px; background: #fff; }
+        select:focus, input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .results { background: #eff6ff; padding: 18px; border-radius: 8px; margin-top: 25px; border-left: 5px solid #3b82f6; }
+        .res-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 16px; border-bottom: 1px dashed #dbeafe; padding-bottom: 8px; }
+        .res-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .bold { font-weight: 700; color: #1e3a8a; }
+        .gas-row { color: #059669; }
+        .gas-row .bold { color: #059669; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>⚡ Калькулятор расхода материалов</h2>
+        <h2>⚡ Инженерный калькулятор сварки (ГОСТ)</h2>
         
-        <label>Тип конструкции:</label>
-        <select id="category" onchange="toggleFields()">
-            <option value="pipe">Расчет труб (ГОСТ 16037-80)</option>
-            <option value="sheet">Расчет листов (ГОСТ 5264-80)</option>
-        </select>
+        <div class="grid-2">
+            <div>
+                <label>Тип конструкции:</label>
+                <select id="category" onchange="toggleFields()">
+                    <option value="pipe">Трубы (ГОСТ 16037-80)</option>
+                    <option value="sheet">Листы (ГОСТ 5264-80)</option>
+                </select>
+            </div>
+            <div>
+                <label>Способ сварки:</label>
+                <select id="method" onchange="calculate()">
+                    <option value="RDS">Ручная дуговая (РДС)</option>
+                    <option value="MIG">Полуавтомат (MIG/MAG в CO₂)</option>
+                    <option value="TIG">Аргонодуговая (TIG)</option>
+                    <option value="GAS">Газовая сварка</option>
+                </select>
+            </div>
+        </div>
 
-        <label>Способ сварки:</label>
-        <select id="method" onchange="calculate()">
-            <option value="1.5">Ручная дуговая (РДС) (К=1.5)</option>
-            <option value="1.12">Полуавтомат (MIG/MAG) (К=1.12)</option>
-            <option value="1.05">Аргонодуговая / Газовая (К=1.05)</option>
-        </select>
-
-        <label>Положение шва:</label>
-        <select id="position" onchange="calculate()">
-            <option value="1.0">Нижнее</option>
-            <option value="1.05">Горизонтальное</option>
-            <option value="1.1">Вертикальное</option>
-            <option value="1.2">Потолочное</option>
-        </select>
-
-        <!-- Поля для ТРУБ -->
+        <div class="grid-2">
+            <div>
+                <label>Положение шва:</label>
+                <select id="position" onchange="calculate()">
+                    <option value="1.0">Нижнее</option>
+                    <option value="1.05">Горизонтальное</option>
+                    <option value="1.10">Вертикальное</option>
+                    <option value="1.20">Потолочное</option>
+                    <option value="1.07">Наклонное</option>
+                </select>
+            </div>
+            <div>
+                <label>Квалификация сварщика:</label>
+                <select id="loss_rate" onchange="calculate()">
+                    <option value="1.0">Высокая (минимальный угар)</option>
+                    <option value="1.08">Средняя (+8% к потерям)</option>
+                </select>
+            </div>
+        </div>
+        <!-- БЛОК ДЛЯ ТРУБ -->
         <div id="pipe_block">
-            <label>Тип соединения:</label>
+            <label>Тип соединения (ГОСТ 16037-80):</label>
             <select id="pipe_joint" onchange="calculate()">
-                <option value="C2">С2 (Без скоса)</option>
-                <option value="C8">С8 (Один скос)</option>
-                <option value="C17">С17 (Два скоса)</option>
-                <option value="U5">У5 (Угловое с фланцем)</option>
+                <option value="C2">С2 — Стыковое одностороннее без скоса</option>
+                <option value="C8">С8 — Стыковое со скосом одной кромки</option>
+                <option value="C17">С17 — Стыковое с V-образной разделкой</option>
+                <option value="U5">У5 — Угловое без скоса кромок (с фланцем)</option>
+                <option value="U7">У7 — Угловое со скосом одной кромки</option>
+                <option value="U8">У8 — Угловое двустороннее без скоса</option>
             </select>
-            <label>Наружный диаметр трубы (D), мм:</label>
-            <input type="number" id="pipe_D" value="57" oninput="calculate()">
-            <label>Толщина стенки (S), мм:</label>
-            <input type="number" id="pipe_S" value="3" oninput="calculate()">
+            
+            <div class="grid-2">
+                <div>
+                    <label>Наружный диаметр (D), мм:</label>
+                    <input type="number" id="pipe_D" value="219" min="10" oninput="calculate()">
+                </div>
+                <div>
+                    <label>Толщина стенки (S), мм:</label>
+                    <input type="number" id="pipe_S" value="6" min="1" oninput="calculate()">
+                </div>
+            </div>
             <label>Количество стыков, шт:</label>
-            <input type="number" id="pipe_count" value="1" oninput="calculate()">
+            <input type="number" id="pipe_count" value="4" min="1" oninput="calculate()">
         </div>
 
-        <!-- Поля для ЛИСТОВ -->
+        <!-- БЛОК ДЛЯ ЛИСТОВ -->
         <div id="sheet_block" style="display:none;">
-            <label>Тип соединения:</label>
+            <label>Тип соединения (ГОСТ 5264-80):</label>
             <select id="sheet_joint" onchange="calculate()">
-                <option value="H1">Н1 (Нахлесточное одностороннее)</option>
-                <option value="H2">Н2 (Нахлесточное двустороннее)</option>
-                <option value="T1">Т1 (Тавровое)</option>
+                <option value="H1">Н1 — Нахлесточное одностороннее</option>
+                <option value="H2">Н2 — Нахлесточное двустороннее</option>
+                <option value="T1">Т1 — Тавровое одностороннее без скоса</option>
+                <option value="T3">Т3 — Тавровое двустороннее без скоса</option>
+                <option value="U4">У4 — Угловое одностороннее</option>
+                <option value="U5">У5 — Угловое двустороннее</option>
             </select>
-            <label>Толщина листа (S), мм:</label>
-            <input type="number" id="sheet_S" value="4" oninput="calculate()">
-            <label>Общая длина швов, метров:</label>
-            <input type="number" id="sheet_L" value="5" oninput="calculate()">
+            
+            <div class="grid-2">
+                <div>
+                    <label>Толщина листа (S), мм:</label>
+                    <input type="number" id="sheet_S" value="8" min="1" oninput="calculate()">
+                </div>
+                <div>
+                    <label>Общая длина швов, метров:</label>
+                    <input type="number" id="sheet_L" value="10" min="0.1" step="0.5" oninput="calculate()">
+                </div>
+            </div>
         </div>
 
+        <!-- РЕЗУЛЬТАТЫ -->
         <div class="results">
-            <div class="res-row"><span>Площадь сечения шва:</span><span class="bold" id="res_F">0.00 мм²</span></div>
-            <div class="res-row"><span>Чистый вес наплавки:</span><span class="bold" id="res_pure">0.000 кг</span></div>
-            <div class="res-row"><span>Итоговый расход материала:</span><span class="bold" id="res_total" style="color: #d97706;">0.000 кг</span></div>
+            <div class="res-row"><span>Протяженность шва (всего):</span><span class="bold" id="res_len">0.00 м</span></div>
+            <div class="res-row"><span>Расчетная площадь сечения шва:</span><span class="bold" id="res_F">0.00 мм²</span></div>
+            <div class="res-row"><span>Чистый вес наплавленного металла:</span><span class="bold" id="res_pure">0.000 кг</span></div>
+            <div class="res-row"><span id="mat_label">Расход сварочных материалов:</span><span class="bold" id="res_total" style="color: #b45309;">0.000 кг</span></div>
+            
+            <!-- Динамические строки для газов -->
+            <div class="res-row gas-row" id="gas_co2_row" style="display:none;"><span>Расход защитного газа CO₂:</span><span class="bold" id="res_co2">0.00 кг</span></div>
+            <div class="res-row gas-row" id="gas_ar_row" style="display:none;"><span>Расход защитного газа Аргон (Ar):</span><span class="bold" id="res_ar">0.00 л (0.00 баллонов)</span></div>
         </div>
     </div>
-
     <script>
         function toggleFields() {
             var cat = document.getElementById("category").value;
@@ -88,9 +134,20 @@
 
         function calculate() {
             var cat = document.getElementById("category").value;
-            var km = parseFloat(document.getElementById("method").value);
-            var kp = parseFloat(document.getElementById("position").value);
-            var F = 0, length = 0;
+            var method = document.getElementById("method").value;
+            var k_pos = parseFloat(document.getElementById("position").value);
+            var k_loss = parseFloat(document.getElementById("loss_rate").value);
+            
+            var k_method = 1.0;
+            var mat_text = "Расход материалов:";
+            if (method === "RDS") { k_method = 1.50; mat_text = "Расход электродов:"; }
+            else if (method === "MIG") { k_method = 1.12; mat_text = "Расход св. проволоки:"; }
+            else if (method === "TIG") { k_method = 1.05; mat_text = "Расход присадочных прутков:"; }
+            else if (method === "GAS") { k_method = 1.03; mat_text = "Расход присадочной проволоки:"; }
+            document.getElementById("mat_label").innerText = mat_text;
+
+            var F = 0, length_m = 0;
+            var DENSITY = 7850;
 
             if (cat === "pipe") {
                 var D = parseFloat(document.getElementById("pipe_D").value) || 0;
@@ -98,27 +155,75 @@
                 var count = parseInt(document.getElementById("pipe_count").value) || 0;
                 var joint = document.getElementById("pipe_joint").value;
                 
-                length = (Math.PI * (D - S) / 1000) * count;
+                length_m = (Math.PI * (D - S) / 1000) * count;
 
-                if (joint === "C2") F = (S * 1.0) + (0.75 * 4 * 1);
-                else if (joint === "C8") F = (S * 1.5) + (0.5 * (S-1) * 1.5) + 3;
-                else if (joint === "C17") F = (S * 2.0) + (0.5 * (S-1.5) * 2.5) + 4;
-                else if (joint === "U5") F = (0.5 * 4 * 4) * 1.2;
+                if (joint === "C2") {
+                    var b = S <= 3 ? 1.0 : 1.5;
+                    var g = 1.5; 
+                    var e = S + b + 2; 
+                    F = (S * b) + (0.75 * e * g);
+                } 
+                else if (joint === "C8") {
+                    var b = 1.5, c = 1.5, angle = 30;
+                    var h_bevel = S - c;
+                    var b_bevel = h_bevel * Math.tan(angle * Math.PI / 180);
+                    var g = 2.0, e = b + b_bevel + 3;
+                    F = (S * b) + (0.5 * b_bevel * h_bevel) + (0.75 * e * g);
+                } 
+                else if (joint === "C17") {
+                    var b = 2.0, c = 1.5, angle = 60;
+                    var h_bevel = S - c;
+                    var b_bevel = 2 * (h_bevel * Math.tan((angle / 2) * Math.PI / 180));
+                    var g = 2.0, e = b + b_bevel + 2;
+                    F = (S * b) + (0.5 * b_bevel * h_bevel) + (0.75 * e * g);
+                } 
+                else if (joint === "U5" || joint === "U8") {
+                    var K = S;
+                    var F_single = (0.5 * K * K) + (0.2 * K * K);
+                    F = joint === "U8" ? F_single * 2 : F_single;
+                }
+                else if (joint === "U7") {
+                    var K = S, angle = 45;
+                    var F_bevel = 0.5 * K * (K * Math.tan(angle * Math.PI / 180));
+                    F = F_bevel + (0.2 * K * K);
+                }
             } else {
                 var S = parseFloat(document.getElementById("sheet_S").value) || 0;
-                length = parseFloat(document.getElementById("sheet_L").value) || 0;
+                length_m = parseFloat(document.getElementById("sheet_L").value) || 0;
                 var joint = document.getElementById("sheet_joint").value;
 
-                F = (0.5 * S * S) * 1.2;
-                if (joint === "H2") F = F * 2;
+                var K = S; 
+                var F_single = (0.5 * K * K) * 1.2;
+
+                if (joint === "H1" || joint === "T1" || joint === "U4") {
+                    F = F_single;
+                } else if (joint === "H2" || joint === "T3" || joint === "U5") {
+                    F = F_single * 2;
+                }
             }
 
-            var mass_pure = (F * 1e-6) * length * 7850;
-            var mass_total = mass_pure * km * kp;
+            var mass_pure = (F * 1e-6) * length_m * DENSITY;
+            var mass_total = mass_pure * k_method * k_pos * k_loss;
 
+            document.getElementById("res_len").innerText = length_m.toFixed(2) + " м";
             document.getElementById("res_F").innerText = F.toFixed(2) + " мм²";
             document.getElementById("res_pure").innerText = mass_pure.toFixed(3) + " кг";
             document.getElementById("res_total").innerText = mass_total.toFixed(3) + " кг";
+
+            document.getElementById("gas_co2_row").style.display = "none";
+            document.getElementById("gas_ar_row").style.display = "none";
+
+            if (method === "MIG") {
+                var gas_co2 = mass_pure * 1.25;
+                document.getElementById("res_co2").innerText = gas_co2.toFixed(2) + " кг";
+                document.getElementById("gas_co2_row").style.display = "flex";
+            } 
+            else if (method === "TIG") {
+                var gas_ar_liters = length_m * 120;
+                var cylinders = gas_ar_liters / 6000;
+                document.getElementById("res_ar").innerText = gas_ar_liters.toFixed(0) + " л (" + cylinders.toFixed(2) + " баллонов)";
+                document.getElementById("gas_ar_row").style.display = "flex";
+            }
         }
         toggleFields();
     </script>
