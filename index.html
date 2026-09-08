@@ -3,23 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Инженерный калькулятор сварки ГОСТ</title>
+    <title>Инженерный калькулятор сварки ГОСТ — ООО СГК</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; padding: 20px; }
-        .card { max-width: 650px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #1e3a8a; }
-        h2 { color: #1e3a8a; margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 22px; }
-        label { display: block; margin: 14px 0 6px; font-weight: 600; color: #4b5563; font-size: 14px; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #cdccdf; border-radius: 6px; box-sizing: border-box; font-size: 16px; background: #fff; }
-        select:focus, input:focus { border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .results { background: #eff6ff; padding: 18px; border-radius: 8px; margin-top: 25px; border-left: 5px solid #3b82f6; }
-        .res-row { display: flex; justify-content: space-between; margin: 10px 0; font-size: 16px; border-bottom: 1px dashed #dbeafe; padding-bottom: 8px; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; padding: 20px; }
+        .card { max-width: 650px; margin: 0 auto; background: #1e293b; padding: 30px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid #334155; position: relative; overflow: hidden; }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981); }
+        h2 { color: #f8fafc; margin-top: 0; display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; border-bottom: 1px solid #334155; padding-bottom: 15px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        label { display: block; margin: 16px 0 6px; font-weight: 600; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #475569; border-radius: 8px; box-sizing: border-box; font-size: 16px; background: #0f172a; color: #f8fafc; transition: all 0.2s ease; }
+        select:focus, input:focus { border-color: #38bdf8; outline: none; box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15); background: #111c30; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .results { background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 10px; margin-top: 25px; border: 1px solid #334155; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+        .res-row { display: flex; justify-content: space-between; margin: 12px 0; font-size: 16px; border-bottom: 1px dashed #334155; padding-bottom: 10px; align-items: center; }
         .res-row:last-child { border-bottom: none; padding-bottom: 0; }
-        .bold { font-weight: 700; color: #1e3a8a; }
-        .gas-row { color: #059669; }
-        .gas-row .bold { color: #059669; }
-        .footer { text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 13px; color: #4b5563; line-height: 1.5; }
-        .footer-company { font-weight: 700; color: #1e3a8a; }
+        .bold { font-weight: 700; color: #38bdf8; font-size: 17px; }
+        .gas-row { color: #34d399; }
+        .gas-row .bold { color: #34d399; }
+        .footer { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155; font-size: 13px; color: #94a3b8; line-height: 1.6; background: rgba(15, 23, 42, 0.3); border-radius: 8px; padding: 15px; }
+        .footer-company { font-weight: 800; color: #38bdf8; font-size: 14px; letter-spacing: 1px; display: block; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -136,10 +137,10 @@
 
         <!-- РЕЗУЛЬТАТЫ -->
         <div class="results">
-            <div class="res-row"><span>Протяженность шва (всего):</span><span class="bold" id="res_len">0.00 м</span></div>
+            <div class="res-row"><span>Протяженность шва (всего):</span><span class="bold" id="res_len" style="color: #f8fafc;">0.00 м</span></div>
             <div class="res-row"><span>Расчетная площадь сечения шва:</span><span class="bold" id="res_F">0.00 мм²</span></div>
             <div class="res-row"><span>Чистый вес наплавленного металла:</span><span class="bold" id="res_pure">0.000 кг</span></div>
-            <div class="res-row"><span id="mat_label">Расход сварочных материалов:</span><span class="bold" id="res_total" style="color: #b45309;">0.000 кг</span></div>
+            <div class="res-row"><span id="mat_label">Расход сварочных материалов:</span><span class="bold" id="res_total" style="color: #fb923c; font-size: 19px;">0.000 кг</span></div>
             
             <div class="res-row gas-row" id="gas_co2_row" style="display:none;"><span>Расход защитного газа CO₂:</span><span class="bold" id="res_co2">0.00 кг</span></div>
             <div class="res-row gas-row" id="gas_ar_row" style="display:none;"><span>Расход защитного газа Аргон (Ar):</span><span class="bold" id="res_ar">0.00 л (0.00 баллонов)</span></div>
@@ -229,14 +230,10 @@
                     F = F_single * 2;
                 }
             } else if (cat === "bar") {
-                // --- РАСЧЕТ КРУГЛЫХ ПРУТКОВ С25 (ГОСТ 5264-80) ---
                 var d = parseFloat(document.getElementById("bar_d").value) || 0;
                 var count = parseInt(document.getElementById("bar_count").value) || 0;
-                
-                // Косой рез по ГОСТ выполняется под углом 45 градусов. 
-                // Площадь эллиптического сечения наплавки рассчитывается на основе геометрии разделки торцов прутка.
                 F = (Math.PI * d * d / 4) * 0.45; 
-                length_m = (d / 1000) * count; // Эквивалентная длина укладки шва
+                length_m = (d / 1000) * count;
             }
 
             var mass_pure = (F * 1e-6) * length_m * DENSITY;
