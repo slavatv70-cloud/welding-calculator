@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Калькулятор Сварки</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; padding: 20px; }
+        .card { max-width: 600px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        h2 { color: #1e3a8a; margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        label { display: block; margin: 14px 0 6px; font-weight: 600; color: #4b5563; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #cdccdf; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .results { background: #eff6ff; padding: 15px; border-radius: 8px; margin-top: 20px; border-left: 5px solid #3b82f6; }
+        .res-row { display: flex; justify-content: space-between; margin: 8px 0; font-size: 16px; }
+        .bold { font-weight: bold; color: #1e3a8a; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>⚡ Калькулятор расхода материалов</h2>
+        
+        <label>Тип конструкции:</label>
+        <select id="category" onchange="toggleFields()">
+            <option value="pipe">Расчет труб (ГОСТ 16037-80)</option>
+            <option value="sheet">Расчет листов (ГОСТ 5264-80)</option>
+        </select>
+
+        <label>Способ сварки:</label>
+        <select id="method" onchange="calculate()">
+            <option value="1.5">Ручная дуговая (РДС) (К=1.5)</option>
+            <option value="1.12">Полуавтомат (MIG/MAG) (К=1.12)</option>
+            <option value="1.05">Аргонодуговая / Газовая (К=1.05)</option>
+        </select>
+
+        <label>Положение шва:</label>
+        <select id="position" onchange="calculate()">
+            <option value="1.0">Нижнее</option>
+            <option value="1.05">Горизонтальное</option>
+            <option value="1.1">Вертикальное</option>
+            <option value="1.2">Потолочное</option>
+        </select>
+
+        <!-- Поля для ТРУБ -->
+        <div id="pipe_block">
+            <label>Тип соединения:</label>
+            <select id="pipe_joint" onchange="calculate()">
+                <option value="C2">С2 (Без скоса)</option>
+                <option value="C8">С8 (Один скос)</option>
+                <option value="C17">С17 (Два скоса)</option>
+                <option value="U5">У5 (Угловое с фланцем)</option>
+            </select>
+            <label>Наружный диаметр трубы (D), мм:</label>
+            <input type="number" id="pipe_D" value="57" oninput="calculate()">
+            <label>Толщина стенки (S), мм:</label>
+            <input type="number" id="pipe_S" value="3" oninput="calculate()">
+            <label>Количество стыков, шт:</label>
+            <input type="number" id="pipe_count" value="1" oninput="calculate()">
+        </div>
+
+        <!-- Поля для ЛИСТОВ -->
+        <div id="sheet_block" style="display:none;">
+            <label>Тип соединения:</label>
+            <select id="sheet_joint" onchange="calculate()">
+                <option value="H1">Н1 (Нахлесточное одностороннее)</option>
+                <option value="H2">Н2 (Нахлесточное двустороннее)</option>
+                <option value="T1">Т1 (Тавровое)</option>
+            </select>
+            <label>Толщина листа (S), мм:</label>
+            <input type="number" id="sheet_S" value="4" oninput="calculate()">
+            <label>Общая длина швов, метров:</label>
+            <input type="number" id="sheet_L" value="5" oninput="calculate()">
+        </div>
+
+        <div class="results">
+            <div class="res-row"><span>Площадь сечения шва:</span><span class="bold" id="res_F">0.00 мм²</span></div>
+            <div class="res-row"><span>Чистый вес наплавки:</span><span class="bold" id="res_pure">0.000 кг</span></div>
+            <div class="res-row"><span>Итоговый расход материала:</span><span class="bold" id="res_total" style="color: #d97706;">0.000 кг</span></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleFields() {
+            var cat = document.getElementById("category").value;
+            document.getElementById("pipe_block").style.display = cat === "pipe" ? "block" : "none";
+            document.getElementById("sheet_block").style.display = cat === "sheet" ? "block" : "none";
+            calculate();
+        }
+
+        function calculate() {
+            var cat = document.getElementById("category").value;
+            var km = parseFloat(document.getElementById("method").value);
+            var kp = parseFloat(document.getElementById("position").value);
+            var F = 0, length = 0;
+
+            if (cat === "pipe") {
+                var D = parseFloat(document.getElementById("pipe_D").value) || 0;
+                var S = parseFloat(document.getElementById("pipe_S").value) || 0;
+                var count = parseInt(document.getElementById("pipe_count").value) || 0;
+                var joint = document.getElementById("pipe_joint").value;
+                
+                length = (Math.PI * (D - S) / 1000) * count;
+
+                if (joint === "C2") F = (S * 1.0) + (0.75 * 4 * 1);
+                else if (joint === "C8") F = (S * 1.5) + (0.5 * (S-1) * 1.5) + 3;
+                else if (joint === "C17") F = (S * 2.0) + (0.5 * (S-1.5) * 2.5) + 4;
+                else if (joint === "U5") F = (0.5 * 4 * 4) * 1.2;
+            } else {
+                var S = parseFloat(document.getElementById("sheet_S").value) || 0;
+                length = parseFloat(document.getElementById("sheet_L").value) || 0;
+                var joint = document.getElementById("sheet_joint").value;
+
+                F = (0.5 * S * S) * 1.2;
+                if (joint === "H2") F = F * 2;
+            }
+
+            var mass_pure = (F * 1e-6) * length * 7850;
+            var mass_total = mass_pure * km * kp;
+
+            document.getElementById("res_F").innerText = F.toFixed(2) + " мм²";
+            document.getElementById("res_pure").innerText = mass_pure.toFixed(3) + " кг";
+            document.getElementById("res_total").innerText = mass_total.toFixed(3) + " кг";
+        }
+        toggleFields();
+    </script>
+</body>
+</html>
