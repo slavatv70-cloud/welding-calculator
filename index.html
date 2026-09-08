@@ -18,6 +18,8 @@
         .bold { font-weight: 700; color: #1e3a8a; }
         .gas-row { color: #059669; }
         .gas-row .bold { color: #059669; }
+        .footer { text-align: center; margin-top: 25px; padding-top: 15px; border-top: 1px solid #e5e7eb; font-size: 13px; color: #4b5563; line-height: 1.5; }
+        .footer-company { font-weight: 700; color: #1e3a8a; }
     </style>
 </head>
 <body>
@@ -30,6 +32,7 @@
                 <select id="category" onchange="toggleFields()">
                     <option value="pipe">Трубы (ГОСТ 16037-80)</option>
                     <option value="sheet">Листы (ГОСТ 5264-80)</option>
+                    <option value="bar">Прутки (ГОСТ 5264-80)</option>
                 </select>
             </div>
             <div>
@@ -112,6 +115,25 @@
             </div>
         </div>
 
+        <!-- БЛОК ДЛЯ ПРУТКОВ -->
+        <div id="bar_block" style="display:none;">
+            <label>Тип соединения (ГОСТ 5264-80):</label>
+            <select id="bar_joint" onchange="calculate()">
+                <option value="C25">С25 — Стыковое двух круглых прутков с косым резом</option>
+            </select>
+            
+            <div class="grid-2">
+                <div>
+                    <label>Диаметр прутка (d), мм:</label>
+                    <input type="number" id="bar_d" value="25" min="5" oninput="calculate()">
+                </div>
+                <div>
+                    <label>Количество стыков прутков, шт:</label>
+                    <input type="number" id="bar_count" value="10" min="1" oninput="calculate()">
+                </div>
+            </div>
+        </div>
+
         <!-- РЕЗУЛЬТАТЫ -->
         <div class="results">
             <div class="res-row"><span>Протяженность шва (всего):</span><span class="bold" id="res_len">0.00 м</span></div>
@@ -119,16 +141,23 @@
             <div class="res-row"><span>Чистый вес наплавленного металла:</span><span class="bold" id="res_pure">0.000 кг</span></div>
             <div class="res-row"><span id="mat_label">Расход сварочных материалов:</span><span class="bold" id="res_total" style="color: #b45309;">0.000 кг</span></div>
             
-            <!-- Динамические строки для газов -->
             <div class="res-row gas-row" id="gas_co2_row" style="display:none;"><span>Расход защитного газа CO₂:</span><span class="bold" id="res_co2">0.00 кг</span></div>
             <div class="res-row gas-row" id="gas_ar_row" style="display:none;"><span>Расход защитного газа Аргон (Ar):</span><span class="bold" id="res_ar">0.00 л (0.00 баллонов)</span></div>
         </div>
+        <!-- ФУТЕР РАЗРАБОТЧИКА -->
+        <div class="footer">
+            Разработчик: <strong>Тищенко Вячеслав Владимирович</strong><br>
+            Сметный отдел, г. Назарово <br>
+            <span class="footer-company">ООО "СГК"</span>
+        </div>
     </div>
+
     <script>
         function toggleFields() {
             var cat = document.getElementById("category").value;
             document.getElementById("pipe_block").style.display = cat === "pipe" ? "block" : "none";
             document.getElementById("sheet_block").style.display = cat === "sheet" ? "block" : "none";
+            document.getElementById("bar_block").style.display = cat === "bar" ? "block" : "none";
             calculate();
         }
 
@@ -159,8 +188,7 @@
 
                 if (joint === "C2") {
                     var b = S <= 3 ? 1.0 : 1.5;
-                    var g = 1.5; 
-                    var e = S + b + 2; 
+                    var g = 1.5; var e = S + b + 2;
                     F = (S * b) + (0.75 * e * g);
                 } 
                 else if (joint === "C8") {
@@ -187,7 +215,7 @@
                     var F_bevel = 0.5 * K * (K * Math.tan(angle * Math.PI / 180));
                     F = F_bevel + (0.2 * K * K);
                 }
-            } else {
+            } else if (cat === "sheet") {
                 var S = parseFloat(document.getElementById("sheet_S").value) || 0;
                 length_m = parseFloat(document.getElementById("sheet_L").value) || 0;
                 var joint = document.getElementById("sheet_joint").value;
@@ -200,6 +228,15 @@
                 } else if (joint === "H2" || joint === "T3" || joint === "U5") {
                     F = F_single * 2;
                 }
+            } else if (cat === "bar") {
+                // --- РАСЧЕТ КРУГЛЫХ ПРУТКОВ С25 (ГОСТ 5264-80) ---
+                var d = parseFloat(document.getElementById("bar_d").value) || 0;
+                var count = parseInt(document.getElementById("bar_count").value) || 0;
+                
+                // Косой рез по ГОСТ выполняется под углом 45 градусов. 
+                // Площадь эллиптического сечения наплавки рассчитывается на основе геометрии разделки торцов прутка.
+                F = (Math.PI * d * d / 4) * 0.45; 
+                length_m = (d / 1000) * count; // Эквивалентная длина укладки шва
             }
 
             var mass_pure = (F * 1e-6) * length_m * DENSITY;
